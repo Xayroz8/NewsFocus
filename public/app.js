@@ -24,8 +24,12 @@ async function fetchNews(tag=currentTag, page=currentPage) {
   if(page===1) container.innerHTML="<p>Loading...</p>";
 
   try {
+    console.log('Fetching news for tag:', tag, 'page:', page);
     const resp = await fetch(`/api/news?tag=${encodeURIComponent(tag)}&page=${page}`);
+    console.log('Response status:', resp.status);
     const data = await resp.json();
+    console.log('Fetched data:', data);
+
 
     if(data.error){
       if(page===1) container.innerHTML=`<p>Error: ${data.error}</p>`;
