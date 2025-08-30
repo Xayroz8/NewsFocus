@@ -1,19 +1,41 @@
-async function fetchAndRender(tag='top', page=1) {
+const tags = ['top','technology','business','entertainment','science','health'];
+let currentTag = 'top';
+let currentPage = 1;
+let loading = false;
+let allLoaded = false;
+
+// 创建标签按钮
+const tagContainer = document.getElementById('tag-buttons');
+tags.forEach(tag=>{
+  const btn = document.createElement('button');
+  btn.textContent = tag[0].toUpperCase() + tag.slice(1);
+  btn.addEventListener('click',()=>switchTag(tag));
+  tagContainer.insertBefore(btn, document.getElementById('refresh-btn'));
+});
+
+async function fetchNews(tag=currentTag, page=currentPage) {
+  if (loading || allLoaded) return;
+  loading = true;
+
   const container = document.getElementById("news-container");
-  container.innerHTML = "<p>Loading...</p>";
+  if(page===1) container.innerHTML="<p>Loading...</p>";
 
   try {
     const resp = await fetch(`/api/news?tag=${encodeURIComponent(tag)}&page=${page}`);
     const data = await resp.json();
 
-    if(data.error) {
-      container.innerHTML = `<p>Error: ${data.error}</p>`;
+    if(data.error){
+      if(page===1) container.innerHTML=`<p>Error: ${data.error}</p>`;
+      loading = false;
       return;
     }
 
-    container.innerHTML = "";
-    if(!data.articles || data.articles.length===0) {
-      container.innerHTML="<p>No news available.</p>";
+    if(page===1) container.innerHTML=""; // 清空第一页内容
+
+    if(!data.articles || data.articles.length===0){
+      if(page===1) container.innerHTML="<p>No news available.</p>";
+      allLoaded = true;
+      loading = false;
       return;
     }
 
@@ -27,8 +49,8 @@ async function fetchAndRender(tag='top', page=1) {
       inner.innerHTML = `
         <div class="news-card-front">
           <img src="${article.urlToImage || ''}" alt="News Image"
-            onload="this.style.opacity=1"
-            onerror="this.onerror=null;this.src='';this.style.backgroundSize='cover';">
+               onload="this.style.opacity=1"
+               onerror="this.onerror=null;this.src='';this.style.backgroundSize='cover';">
           <div class="card-content">
             <h3>${article.title}</h3>
             <p>${article.description || 'No description available.'}</p>
@@ -46,27 +68,44 @@ async function fetchAndRender(tag='top', page=1) {
       card.appendChild(inner);
       container.appendChild(card);
     });
+
+    loading = false;
   } catch(err) {
-    container.innerHTML=`<p>Error fetching news: ${err.message}</p>`;
+    if(page===1) container.innerHTML=`<p>Error fetching news: ${err.message}</p>`;
     console.error(err);
+    loading=false;
   }
 }
 
-// 页面加载默认渲染 top
-window.addEventListener("DOMContentLoaded", ()=>fetchAndRender());
+// 切换标签
+function switchTag(tag){
+  currentTag = tag;
+  currentPage = 1;
+  allLoaded = false;
+  fetchNews();
+}
 
 // 手动刷新按钮
-const refreshBtn=document.getElementById("refresh-btn");
-if(refreshBtn){ refreshBtn.addEventListener("click",()=>fetchAndRender()); }
-
-// 切换标签
-function selectTag(tag){ fetchAndRender(tag,1); }
+document.getElementById("refresh-btn").addEventListener("click", ()=>{
+  currentPage=1;
+  allLoaded=false;
+  fetchNews();
+});
 
 // 夜间模式切换
-const themeBtn=document.getElementById("toggle-theme");
-if(themeBtn){
-  themeBtn.addEventListener("click",()=>{
-    document.body.classList.toggle("dark");
-    document.body.classList.toggle("light");
-  });
-}
+document.getElementById("toggle-theme").addEventListener("click",()=>{
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+});
+
+// 无限滚动加载
+window.addEventListener('scroll', ()=>{
+  if(loading || allLoaded) return;
+  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
+    currentPage++;
+    fetchNews();
+  }
+});
+
+// 初始加载
+window.addEventListener("DOMContentLoaded", ()=>fetchNews());
