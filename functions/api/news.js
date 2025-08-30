@@ -12,7 +12,11 @@ export async function onRequest(context) {
 
   try {
     const res = await fetch(upstreamUrl, {
-      headers: { "X-Api-Key": apiKey }
+      headers: {
+        "X-Api-Key": apiKey,
+        "User-Agent": "MyNewsAggregator/1.0 (https://your-site.pages.dev)",
+        "Accept": "application/json"
+      }
     });
 
     // ⚠️ 如果返回不是 JSON，打印出来调试
@@ -96,6 +100,7 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
+
 
 
 
