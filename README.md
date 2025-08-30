@@ -1,6 +1,6 @@
 # 📰 News Aggregator – Cloudflare Pages
 
-#### 🌐 [English Version](README.md) | [中文版](README_zh.md)
+#### 🌐 [English Version](https://github.com/benjiann/NewsFocus/main/README.md) | [中文版](https://github.com/benjiann/NewsFocus//main/README_zh.md)
 
 
 A simple, fast, and visually appealing **news aggregator** built with **Cloudflare Pages**.  
@@ -117,5 +117,6 @@ cd news-aggregator
 ## 🎉 Screenshots (Optional)
 
 _Add screenshots of your deployed site here to showcase the UI._
+
 
 
