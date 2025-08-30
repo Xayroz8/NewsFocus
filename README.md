@@ -42,10 +42,7 @@ Set the following in **Cloudflare Pages → Settings → Environment Variables**
 | Variable Name     | Description                                 |
 |------------------|---------------------------------------------|
 | NEWSAPI_KEY       | Your NewsAPI API Key                        |
-| NEWS_SOURCES      | Comma-separated sources (e.g. `bbc-news,cnn`) |
 | NEWS_LANGUAGE     | Language code, e.g. `en`                   |
-| NEWS_CACHE        | Name of your KV namespace for caching      |
-| MIN_IMAGE_WIDTH   | Optional, minimum image width to use       |
 
 > ⚠️ **Do not hardcode the API key** in frontend code. Use the Functions proxy to protect it.
 
@@ -73,7 +70,7 @@ cd news-aggregator
 
 4. **Add Functions support**:
 
-- KV namespace binding: add `NEWS_CACHE` → bind to the KV namespace you created
+- KV namespace binding: Create name is `NEWS_CACHE` → bind to the KV namespace you created(name eg: newsfocus)
 
 5. **Add Environment Variables** (see above)
 
@@ -111,6 +108,7 @@ cd news-aggregator
 > You can also integrate [Font Awesome](https://fontawesome.com/) icons in `index.html` if you want more visual flair.
 
 ---
+
 
 
 
