@@ -64,24 +64,23 @@ cd news-aggregator
 2. **连接 Cloudflare Pages**：
 
 - 打开 [Cloudflare Pages](https://pages.cloudflare.com/)  
-- 点击 **Create a Project** → 连接 GitHub 仓库  
+- 点击 **创建一个项目** → 连接 GitHub 仓库  
 
 3. **配置构建设置**：
 
-- **Framework**：None / Static Site  
-- **Build command**：留空（无构建步骤）  
-- **Build output directory**：`public`  
+- **框架**：None / Static Site  
+- **构建命令**：留空（无构建步骤）  
+- **构建输出:**：`public`  
 
 4. **添加 Functions 支持**：
 
-- 设置 **Functions 目录** 为 `/functions`  
 - KV 绑定：添加 `NEWS_CACHE` → 绑定到已创建的 KV 命名空间
 
 5. **配置环境变量**（参考上表）
 
 6. **部署**：
 
-- 点击 **Save and Deploy** → Pages 会构建并提供前端和 API 服务  
+- 点击 **保存部署** → Pages 会构建并提供前端和 API 服务  
 
 7. **访问网站**：
 
@@ -113,8 +112,3 @@ cd news-aggregator
 > 可在 `index.html` 中集成 [Font Awesome](https://fontawesome.com/) 图标实现更丰富视觉效果。
 
 ---
-
-## 🎉 截图（可选）
-
-_在此添加已部署网站截图展示界面效果_
-
