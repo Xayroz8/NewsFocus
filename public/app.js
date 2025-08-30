@@ -1,10 +1,12 @@
+// 配置标签
 const tags = ['top','technology','business','entertainment','science','health'];
+
 let currentTag = 'top';
 let currentPage = 1;
 let loading = false;
 let allLoaded = false;
 
-// 创建标签按钮
+// 动态生成标签按钮
 const tagContainer = document.getElementById('tag-buttons');
 tags.forEach(tag=>{
   const btn = document.createElement('button');
@@ -13,6 +15,7 @@ tags.forEach(tag=>{
   tagContainer.insertBefore(btn, document.getElementById('refresh-btn'));
 });
 
+// 核心函数：获取新闻并渲染
 async function fetchNews(tag=currentTag, page=currentPage) {
   if (loading || allLoaded) return;
   loading = true;
@@ -39,6 +42,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
       return;
     }
 
+    // 渲染每篇文章
     data.articles.forEach(article => {
       const card = document.createElement("div");
       card.className="news-card";
@@ -54,7 +58,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
           <div class="card-content">
             <h3>${article.title}</h3>
             <p>${article.description || 'No description available.'}</p>
-            <span class="source">${article.source}</span>
+            <span class="source">${article.source?.name || 'Unknown'}</span>
           </div>
         </div>
         <div class="news-card-back">
@@ -98,7 +102,7 @@ document.getElementById("toggle-theme").addEventListener("click",()=>{
   document.body.classList.toggle("light");
 });
 
-// 无限滚动加载
+// 无限滚动加载下一页
 window.addEventListener('scroll', ()=>{
   if(loading || allLoaded) return;
   if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
@@ -107,5 +111,5 @@ window.addEventListener('scroll', ()=>{
   }
 });
 
-// 初始加载
+// 初始加载第一页新闻
 window.addEventListener("DOMContentLoaded", ()=>fetchNews());
