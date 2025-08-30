@@ -1,92 +1,101 @@
-// functions/api/news.js
 export async function onRequest(context) {
-  const { request, env } = context;
+  const { env, request } = context;
   const url = new URL(request.url);
+  const debug = url.searchParams.get('debug') === '1';
 
-  const page = url.searchParams.get("page") || 1;
-  const sources = env.NEWS_SOURCES || ""; // 过滤的新闻源
-  const apiKey = env.NEWSAPI_KEY || env.NEWS_API_KEY; 
+  const tag = url.searchParams.get('tag') || 'top';
+  const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+  const pageSize = Math.max(1, Math.min(parseInt(url.searchParams.get('pageSize') || '20', 10), 50));
+  const forceRefresh = url.searchParams.has('refresh');
+  const ttl = forceRefresh ? 60 : 300;
 
-  const upstreamUrl = `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&page=${page}&sources=${sources}`;
+  // KV key
+  const kvKey = `news:${tag}:p${page}`;
+
+  // 读取 KV 缓存
+  if (env.NEWS_CACHE && !forceRefresh) {
+    try {
+      const cached = await env.NEWS_CACHE.get(kvKey, { type: 'json' });
+      if (cached) return jsonResponse(cached, ttl);
+    } catch (e) {
+      console.log('KV read error', e);
+    }
+  }
+
+  // 构建 NewsAPI URL
+  const sources = env.NEWS_SOURCES || '';
+  const apiParams = new URLSearchParams();
+  apiParams.set('language', 'en');
+  apiParams.set('pageSize', pageSize);
+  apiParams.set('page', page);
+
+  if (sources) {
+    apiParams.set('sources', sources);
+  } else if (tag.toLowerCase() !== 'top') {
+    // 如果没有 sources，用 tag 查询关键词
+    apiParams.set('q', tag);
+  }
+
+  const apiUrl = `https://newsapi.org/v2/top-headlines?${apiParams.toString()}`;
+  const apiKey = env.NEWS_API_KEY;
 
   try {
-    const res = await fetch(upstreamUrl, {
+    const res = await fetch(apiUrl, {
       headers: {
-        "X-Api-Key": apiKey,
-        "User-Agent": "MyNewsAggregator/1.0 (https://your-site.pages.dev)",
-        "Accept": "application/json"
+        'X-Api-Key': apiKey,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
       }
     });
 
-    // ⚠️ 如果返回不是 JSON，打印出来调试
     const text = await res.text();
     let data;
     try {
       data = JSON.parse(text);
     } catch (e) {
-      return new Response(JSON.stringify({
-        error: "Invalid JSON from NewsAPI",
-        status: res.status,
-        body: text.slice(0, 200) // 只截取前200字符
-      }), { status: 500 });
+      return jsonResponse({ error: 'Failed to parse JSON from NewsAPI', snippet: text.slice(0,200) }, 500);
     }
 
-    return new Response(JSON.stringify(data), {
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({
-      error: "Fetch failed",
-      details: err.message
-    }), { status: 500 });
+    if (data.status && data.status !== 'ok') {
+      return jsonResponse({ error: 'Upstream API error', details: data }, 502);
+    }
+
+    const minW = Number(env.MIN_IMAGE_WIDTH || 200);
+    const normalized = {
+      status: 'ok',
+      totalResults: data.totalResults || 0,
+      articles: (data.articles || []).map(a => simplifyArticle(a, minW)),
+      tag,
+      page,
+      pageSize,
+      fetchedAt: new Date().toISOString(),
+    };
+
+    // 写入 KV
+    if (env.NEWS_CACHE) {
+      try {
+        await env.NEWS_CACHE.put(kvKey, JSON.stringify(normalized), { expirationTtl: ttl });
+      } catch(e) {
+        console.log('KV put error', e);
+      }
+    }
+
+    return jsonResponse(normalized, ttl);
+
+  } catch(err) {
+    return jsonResponse({ error: 'Fetch failed', details: err.message }, 500);
   }
 }
-
 
 /* ---------- helpers ---------- */
-
-function json(obj, status = 200, ttl = 300) {
-  const headers = {
-    'content-type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-  };
-  if (typeof ttl === 'number' && ttl > 0) {
-    headers['Cache-Control'] = `public, s-maxage=${Math.max(0, ttl)}, stale-while-revalidate=86400`;
-  } else {
-    headers['Cache-Control'] = 'no-store';
-  }
-  return new Response(JSON.stringify(obj, null, 2), { status, headers });
-}
-
-function csv(v) {
-  return String(v || '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-function kvKey(tag, page, sources) {
-  return `v1:news:${slug(tag)}:p${page}:src:${hash(sources.join(','))}`;
-}
-
-function slug(s) {
-  return String(s || '')
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-_]/g, '');
-}
-
-function hash(s) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
-  }
-  return (h >>> 0).toString(36);
-}
-
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n || 0));
+function jsonResponse(obj, ttl = 300) {
+  return new Response(JSON.stringify(obj, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': ttl>0 ? `public, s-maxage=${ttl}, stale-while-revalidate=86400` : 'no-store',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
 }
 
 function simplifyArticle(a, minW) {
@@ -99,9 +108,3 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
-
-
-
-
-
-
