@@ -43,7 +43,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
     }
 
     // 渲染每篇文章
-    data.articless.forEach(articles => {
+    data.articles.forEach(articles => {
       const card = document.createElement("div");
       card.className="news-card";
 
