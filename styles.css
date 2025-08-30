@@ -1,0 +1,137 @@
+:root {
+    --gap: 16px;
+    --maxw: 1100px;
+    --card-bg: #fff;
+    --body-bg: #f6f7f9;
+    --text: #111;
+    --muted: #666;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    font: 16px/1.5 system-ui, Segoe UI, Roboto, Helvetica, Arial;
+    color: var(--text);
+    background: var(--body-bg)
+}
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 12px 16px
+}
+
+.site-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 22px
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.tag {
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    cursor: pointer
+}
+
+.tag.active {
+    background: #111;
+    color: #fff;
+    border-color: #111
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer
+}
+
+main {
+    max-width: var(--maxw);
+    margin: 20px auto;
+    padding: 0 12px
+}
+
+.masonry {
+    column-width: 320px;
+    column-gap: var(--gap)
+}
+
+.card {
+    break-inside: avoid;
+    background: var(--card-bg);
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    margin: 0 0 var(--gap);
+    overflow: hidden;
+    border: 1px solid #eee
+}
+
+.imgwrap {
+    display: block
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    display: block
+}
+
+.card-body {
+    padding: 12px
+}
+
+.title {
+    font-size: 16px;
+    margin: 0 0 6px 0
+}
+
+.desc {
+    color: var(--muted);
+    margin: 0 0 8px 0
+}
+
+.meta {
+    color: #888;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px
+}
+
+.dot {
+    opacity: .5
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    padding: 24px
+}
+
+@media (max-width:720px) {
+    .masonry {
+        column-width: 100%
+    }
+}

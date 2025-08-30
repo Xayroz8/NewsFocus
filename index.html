@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Top Headlines – Aggregator</title>
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+    <header class="site-header">
+        <h1>Top Headlines</h1>
+        <div class="controls">
+            <div id="tags" class="tags"></div>
+            <button id="refreshBtn" class="btn">Refresh</button>
+        </div>
+    </header>
+
+
+    <main>
+        <section id="grid" class="masonry"></section>
+        <div class="actions">
+            <button id="loadMoreBtn" class="btn">Load more</button>
+        </div>
+    </main>
+
+
+    <template id="card-tpl">
+        <article class="card">
+            <a class="imgwrap" target="_blank" rel="noopener">
+                <img alt="" loading="lazy" />
+            </a>
+            <div class="card-body">
+                <h3 class="title"></h3>
+                <p class="desc"></p>
+                <div class="meta"><span class="source"></span><span class="dot">•</span><time></time></div>
+            </div>
+        </article>
+    </template>
+
+
+    <script src="/app.js" defer></script>
+</body>
+
+</html>

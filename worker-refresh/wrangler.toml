@@ -1,0 +1,31 @@
+# wrangler.toml for the cron prewarm worker (news-prewarm)
+name = "news-prewarm"
+main = "src/index.js"
+type = "javascript" # or "modules" depending on your toolchain; JS module code is provided
+compatibility_date = "2025-08-29" # 更新为当前或更近日期
+
+# Replace with your account id
+account_id = "<YOUR_ACCOUNT_ID>"
+
+# Bind your KV namespace here; replace id with the namespace id you created in your account
+[[kv_namespaces]]
+binding = "NEWS_CACHE"
+id = "<YOUR_KV_ID>"
+
+# Cron triggers: change schedule as needed (example every 15 minutes)
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Environment variables for the worker (non-secret). You can set or override these via Wrangler or the dashboard.
+[vars]
+PAGE_SIZE = "40"
+CACHE_TTL_SECONDS = "600"
+PUBLIC_TAGS = "Top,AI,Technology,Finance,Science,Sports,Politics,Entertainment"
+NEWS_ALLOWED_SOURCES = "bbc-news,reuters,associated-press,bloomberg,the-verge,techcrunch,engadget,cnn,nbc-news,politico,msnbc,the-wall-street-journal"
+NEWS_EXCLUDE_SOURCES = ""
+
+# Secrets:
+# - NEWSAPI_KEY should be provided as a secret:
+#   wrangler secret put NEWSAPI_KEY
+#
+# If you need different values for staging/production, you can use environments in wrangler.toml.
