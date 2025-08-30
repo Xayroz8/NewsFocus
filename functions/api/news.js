@@ -38,7 +38,16 @@ export default {
         return json({ error: 'Upstream error', status: res.status, details: text.slice(0, 300) }, 502);
       }
 
-      const data = await res.json();
+      // 🛠️ 这里增加安全解析逻辑
+      let data;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        return json({ error: 'Invalid response type', details: text.slice(0, 300) }, 502);
+      }
+
       const minW = +env.MIN_IMAGE_WIDTH || 200;
       const normalized = {
         status: 'ok',
@@ -60,6 +69,7 @@ export default {
     }
   }
 };
+
 
 function simplifyArticle(a, minW) {
   const img = a?.urlToImage || '';
@@ -115,3 +125,4 @@ function json(obj, status = 200, ttl = 300) {
     },
   });
 }
+
