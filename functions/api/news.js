@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const sources = env.NEWS_SOURCES || ""; // 过滤的新闻源
   const apiKey = env.NEWSAPI_KEY || "2d9f228dcc4f4c1d8850b69f2c3c0fbd"; 
 
-  const upstreamUrl = `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&page=${page}&category=${category}&sources=${sources}`;
+  const upstreamUrl = `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&page=${page}&sources=${sources}`;
 
   try {
     const res = await fetch(upstreamUrl, {
@@ -100,6 +100,7 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
+
 
 
 
