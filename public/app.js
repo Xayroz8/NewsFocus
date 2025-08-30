@@ -58,7 +58,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
           <div class="card-content">
             <h3>${articles.title}</h3>
             <p>${articles.description || 'No description available.'}</p>
-            <span class="source">${article.source || 'Unknown'}</span>
+            <span class="source">${articles.source || 'Unknown'}</span>
           </div>
         </div>
         <div class="news-card-back">
