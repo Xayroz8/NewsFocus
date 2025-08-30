@@ -1,6 +1,6 @@
 # 📰 新闻聚合器 – Cloudflare Pages
 
-## 🌐 [English Version](README.md) | [中文版](README_zh.md)
+#### 🌐 [English Version](README.md) | [中文版](README_zh.md)
 
 
 一个简单、快速、美观的 **新闻聚合器**，基于 **Cloudflare Pages** 构建。  
