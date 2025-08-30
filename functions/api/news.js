@@ -28,21 +28,34 @@ export default {
         cf: { cacheTtl: 0, cacheEverything: false },
       });
 
-      const text = await res.text();
+      // Debug 输出请求信息
+      if (!res.ok) {
+        const text = await res.text();
+        return new Response(
+          JSON.stringify({
+            error: "Upstream fetch failed",
+            status: res.status,
+            url: apiUrl.toString(),
+            details: text.slice(0, 500) // 截取部分内容
+          }, null, 2),
+          { status: 502, headers: { "Content-Type": "application/json" } }
+        );
+      }
 
       let data;
       try {
-        data = JSON.parse(text);
+        data = await res.json();
       } catch (e) {
-        return json({
-          error: 'Upstream returned non-JSON',
-          status: res.status,
-          details: text.slice(0, 300) // 只截取前300字符，避免太长
-        }, 502);
-      }
-
-      if (data.status !== 'ok') {
-        return json({ error: 'Upstream error', details: data }, 502);
+        const text = await res.text();
+        return new Response(
+          JSON.stringify({
+            error: "JSON parse failed",
+            url: apiUrl.toString(),
+            message: e.message,
+            responseSnippet: text.slice(0, 500)
+          }, null, 2),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
       }
 
       const minW = +env.MIN_IMAGE_WIDTH || 200;
@@ -50,7 +63,7 @@ export default {
         status: 'ok',
         totalResults: data.totalResults || 0,
         articles: (data.articles || []).map((a) => simplifyArticle(a, minW)),
-        tag,
+        tag: tag || 'top',
         page,
         pageSize,
         fetchedAt: new Date().toISOString(),
@@ -62,10 +75,18 @@ export default {
 
       return json(normalized, 200, ttl);
     } catch (error) {
-      return json({ error: 'Internal server error', details: error.message }, 500);
+      return new Response(
+        JSON.stringify({
+          error: "Worker exception",
+          message: error.message,
+          stack: error.stack
+        }, null, 2),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
     }
   }
 };
+
 
 function simplifyArticle(a, minW) {
   const img = a?.urlToImage || '';
@@ -121,5 +142,6 @@ function json(obj, status = 200, ttl = 300) {
     },
   });
 }
+
 
 
