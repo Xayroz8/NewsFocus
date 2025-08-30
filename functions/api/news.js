@@ -1,118 +1,44 @@
 // functions/api/news.js
-export async function onRequestGet(context) {
+export async function onRequest(context) {
   const { request, env } = context;
-  const debug = new URL(request.url).searchParams.get('debug') === '1';
+  const url = new URL(request.url);
+
+  const page = url.searchParams.get("page") || 1;
+  const category = url.searchParams.get("category") || "general";
+  const sources = env.NEWS_SOURCES || ""; // 过滤的新闻源
+  const apiKey = env.NEWSAPI_KEY || "你写死的KEY"; 
+
+  const upstreamUrl = `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&page=${page}&category=${category}&sources=${sources}`;
 
   try {
-    // parse params
-    const url = new URL(request.url);
-    const tag = url.searchParams.get('tag') || 'top';
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
-    const pageSize = clamp(parseInt(url.searchParams.get('pageSize') || env.PAGE_SIZE || '20', 10), 1, 100);
-    const forceRefresh = url.searchParams.has('refresh');
-    const ttl = forceRefresh ? 60 : Number(env.CACHE_TTL_SECONDS || 300);
-
-    // sources (support two env names for compatibility)
-    const sourcesCsv = env.NEWS_SOURCES || env.NEWS_ALLOWED_SOURCES || '';
-    const sources = csv(sourcesCsv || 'bbc-news,cnn,reuters,the-verge,techcrunch');
-
-    if (sources.length === 0) {
-      return json({ error: 'No sources configured (NEWS_SOURCES / NEWS_ALLOWED_SOURCES)' }, 500);
-    }
-
-    const key = kvKey(tag, page, sources);
-
-    // try KV cache first
-    if (!forceRefresh && env.NEWS_CACHE) {
-      try {
-        const cached = await env.NEWS_CACHE.get(key, { type: 'json' });
-        if (cached) return json(cached, 200, ttl);
-      } catch (e) {
-        // KV read error shouldn't block: log and continue
-        console.log('KV read error', e);
-      }
-    }
-
-    // build NewsAPI URL
-    const apiUrl = new URL('https://newsapi.org/v2/top-headlines');
-    apiUrl.searchParams.set('sources', sources.join(','));
-    apiUrl.searchParams.set('pageSize', String(pageSize));
-    apiUrl.searchParams.set('page', String(page));
-    if (tag && tag.toLowerCase() !== 'top') apiUrl.searchParams.set('q', tag);
-
-    // fetch upstream
-    const upstreamKey = env.NEWSAPI_KEY || '2d9f228dcc4f4c1d8850b69f2c3c0fbd'; // support both names
-    const fetchRes = await fetch(apiUrl.toString(), {
-      headers: { 'X-Api-Key': String(upstreamKey || '') },
-      cf: { cacheTtl: 0, cacheEverything: false },
+    const res = await fetch(upstreamUrl, {
+      headers: { "X-Api-Key": apiKey }
     });
 
-    const contentType = (fetchRes.headers.get('content-type') || '').toLowerCase();
-    const rawText = await fetchRes.text(); // always get text first to allow debugging
-
-    // if not JSON, return helpful debug info (if debug=1 show snippet)
-    if (!contentType.includes('application/json')) {
-      const payload = {
-        error: 'Upstream returned non-JSON',
-        upstreamUrl: apiUrl.toString(),
-        upstreamStatus: fetchRes.status,
-        responseSnippet: rawText.slice(0, 1000),
-      };
-      if (debug) {
-        return json(payload, 502, 0);
-      } else {
-        // production: don't leak too much
-        return json({ error: 'Upstream returned non-JSON', status: fetchRes.status }, 502);
-      }
-    }
-
-    // parse JSON safely
+    // ⚠️ 如果返回不是 JSON，打印出来调试
+    const text = await res.text();
     let data;
     try {
-      data = JSON.parse(rawText);
+      data = JSON.parse(text);
     } catch (e) {
-      const payload = { error: 'Failed to parse upstream JSON', message: e.message, snippet: rawText.slice(0, 1000) };
-      if (debug) return json(payload, 500, 0);
-      return json({ error: 'Failed to parse upstream JSON' }, 500);
+      return new Response(JSON.stringify({
+        error: "Invalid JSON from NewsAPI",
+        status: res.status,
+        body: text.slice(0, 200) // 只截取前200字符
+      }), { status: 500 });
     }
 
-    // handle upstream API-level errors
-    if (data.status && data.status !== 'ok') {
-      const payload = { error: 'Upstream API error', details: data };
-      if (debug) return json(payload, 502, 0);
-      return json({ error: 'Upstream API error' }, 502);
-    }
-
-    // normalize articles
-    const minW = Number(env.MIN_IMAGE_WIDTH || 200);
-    const normalized = {
-      status: 'ok',
-      totalResults: data.totalResults || 0,
-      articles: (data.articles || []).map((a) => simplifyArticle(a, minW)),
-      tag,
-      page,
-      pageSize,
-      fetchedAt: new Date().toISOString(),
-    };
-
-    // put to KV (best-effort)
-    if (env.NEWS_CACHE) {
-      try {
-        await env.NEWS_CACHE.put(key, JSON.stringify(normalized), { expirationTtl: ttl });
-      } catch (e) {
-        console.log('KV put error', e);
-      }
-    }
-
-    return json(normalized, 200, ttl);
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (err) {
-    console.error('Function exception', err);
-    if (debug) {
-      return json({ error: 'Function exception', message: err.message, stack: err.stack }, 500, 0);
-    }
-    return json({ error: 'Internal server error' }, 500);
+    return new Response(JSON.stringify({
+      error: "Fetch failed",
+      details: err.message
+    }), { status: 500 });
   }
 }
+
 
 /* ---------- helpers ---------- */
 
@@ -170,4 +96,5 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
+
 
