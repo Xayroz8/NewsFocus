@@ -73,7 +73,6 @@ cd news-aggregator
 
 4. **Add Functions support**:
 
-- Set the **Functions directory** to `/functions` in Pages settings  
 - KV namespace binding: add `NEWS_CACHE` → bind to the KV namespace you created
 
 5. **Add Environment Variables** (see above)
@@ -112,10 +111,6 @@ cd news-aggregator
 > You can also integrate [Font Awesome](https://fontawesome.com/) icons in `index.html` if you want more visual flair.
 
 ---
-
-## 🎉 Screenshots (Optional)
-
-_Add screenshots of your deployed site here to showcase the UI._
 
 
 
