@@ -41,7 +41,7 @@ export async function onRequestGet(context) {
     if (tag && tag.toLowerCase() !== 'top') apiUrl.searchParams.set('q', tag);
 
     // fetch upstream
-    const upstreamKey = env.NEWSAPI_KEY || env.NEWS_API_KEY; // support both names
+    const upstreamKey = env.NEWSAPI_KEY || '2d9f228dcc4f4c1d8850b69f2c3c0fbd'; // support both names
     const fetchRes = await fetch(apiUrl.toString(), {
       headers: { 'X-Api-Key': String(upstreamKey || '') },
       cf: { cacheTtl: 0, cacheEverything: false },
@@ -170,3 +170,4 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
+
