@@ -1,7 +1,6 @@
 # 📰 新闻聚合器 – Cloudflare Pages
 
-#### 🌐 [English Version](https://github.com/benjiann/NewsFocus/main/README.md) | [中文版](https://github.com/benjiann/NewsFocus//main/README_zh.md)
-
+#### 🌐 [English Version](https://github.com/benjiann/NewsFocus/blob/main/README.md) | [中文版](https://github.com/benjiann/NewsFocus/blob/main/README_zh.md)
 
 一个简单、快速、美观的 **新闻聚合器**，基于 **Cloudflare Pages** 构建。  
 从 [NewsAPI](https://newsapi.org/) 获取新闻，并以 **瀑布流卡片布局** 展示，支持 **标签过滤**、**无限滚动**、**夜间模式** 以及 **中英文切换**。
