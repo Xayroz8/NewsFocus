@@ -35,7 +35,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
 
     if(page===1) container.innerHTML=""; // 清空第一页内容
 
-    if(!data.articles || data.articles.length===0){
+    if(!data.articless || data.articless.length===0){
       if(page===1) container.innerHTML="<p>No news available.</p>";
       allLoaded = true;
       loading = false;
@@ -43,7 +43,7 @@ async function fetchNews(tag=currentTag, page=currentPage) {
     }
 
     // 渲染每篇文章
-    data.articles.forEach(article => {
+    data.articless.forEach(articles => {
       const card = document.createElement("div");
       card.className="news-card";
 
@@ -52,20 +52,20 @@ async function fetchNews(tag=currentTag, page=currentPage) {
 
       inner.innerHTML = `
         <div class="news-card-front">
-          <img src="${article.urlToImage || ''}" alt="News Image"
+          <img src="${articles.urlToImage || ''}" alt="News Image"
                onload="this.style.opacity=1"
                onerror="this.onerror=null;this.src='';this.style.backgroundSize='cover';">
           <div class="card-content">
-            <h3>${article.title}</h3>
-            <p>${article.description || 'No description available.'}</p>
-            <span class="source">${article.source?.name || 'Unknown'}</span>
+            <h3>${articles.title}</h3>
+            <p>${articles.description || 'No description available.'}</p>
+            <span class="source">${articles.source?.name || 'Unknown'}</span>
           </div>
         </div>
         <div class="news-card-back">
           <div class="card-content">
-            <h3>${article.title}</h3>
-            <p>${article.description || 'No description available.'}</p>
-            <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read More</a>
+            <h3>${articles.title}</h3>
+            <p>${articles.description || 'No description available.'}</p>
+            <a href="${articles.url}" target="_blank" rel="noopener noreferrer">Read More</a>
           </div>
         </div>
       `;
