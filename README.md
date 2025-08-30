@@ -1,97 +1,117 @@
-# 📰 News Aggregator on Cloudflare Pages
+# 📰 News Aggregator – Cloudflare Pages
 
-A lightweight **news aggregation web app** built with **HTML, CSS, and JavaScript**. It fetches news articles from the [NewsAPI](https://newsapi.org/) and displays them in a **masonry-style (瀑布流) card layout**. The app is designed to run entirely on **Cloudflare Pages**, with configuration handled via environment variables.
+A simple, fast, and visually appealing **news aggregator** built with **Cloudflare Pages**.  
+Fetches news from [NewsAPI](https://newsapi.org/) and displays them in a **masonry-style card layout**, supporting **tag filtering**, **infinite scroll**, and **night mode**.
 
 ---
 
 ## ✨ Features
 
-* 🔍 **English-only news**
-* 🏷️ **Tag-based filtering** (e.g., technology, sports, politics)
-* 📰 **Dynamic news cards** with images, titles, and clickable links to full articles
-* 🌊 **Masonry-style layout** for a modern look
-* 🔄 **Auto-refresh via Cloudflare Pages Scheduled Functions**
-* 🔘 **Manual refresh button** for users
-* ⚙️ **Configurable news sources** via environment variables
-* 🚀 **Serverless deployment** on Cloudflare Pages (no traditional backend required)
+- 🗞 Fetches news from **NewsAPI Top Headlines**  
+- 🏷 Supports **tag-based filtering**: Top, Technology, Business, Entertainment, Science, Health  
+- 🖼 **Masonry / grid layout** cards with image, title, description, source, and link  
+- 🔄 **Infinite scroll** to load more news  
+- 🌙 **Night mode toggle**  
+- ✨ **Image fade-in** effect with default placeholder for broken images  
+- ⚡ Cloudflare Pages **serverless deployment** (no backend server required)  
+- 🔁 Optional **manual refresh** button  
+- 💾 API requests are **cached in KV** to avoid exceeding NewsAPI limits  
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
-├── index.html       # Main HTML file
-├── app.js           # Frontend logic (fetch news, render UI)
-├── index.js         # Cloudflare Pages Function (API fetcher)
-├── wrangler.toml    # Cloudflare Pages configuration
-├── styles.css       # Custom styles (masonry layout, cards)
-└── README.md        # Project documentation
+/functions        # Cloudflare Pages Functions
+  news.js         # API proxy to fetch news and cache in KV
+/public
+  index.html      # Main frontend page
+  style.css       # Styles for cards and night mode
+  app.js          # Frontend JS: fetch, render, infinite scroll, tag switching
+wrangler.toml     # Cloudflare Pages + Functions configuration
 ```
 
 ---
 
-## ⚡ Deployment Steps
+## 🛠 Environment Variables
 
-### 1. Clone Repository
+Set the following in **Cloudflare Pages → Settings → Environment Variables**:
+
+| Variable Name     | Description                                 |
+|------------------|---------------------------------------------|
+| NEWSAPI_KEY       | Your NewsAPI API Key                        |
+| NEWS_SOURCES      | Comma-separated sources (e.g. `bbc-news,cnn`) |
+| NEWS_LANGUAGE     | Language code, e.g. `en`                   |
+| NEWS_CACHE        | Name of your KV namespace for caching      |
+| MIN_IMAGE_WIDTH   | Optional, minimum image width to use       |
+
+> ⚠️ **Do not hardcode the API key** in frontend code. Use the Functions proxy to protect it.
+
+---
+
+## 🚀 Deployment Steps
+
+1. **Clone or fork this repository**:
 
 ```bash
-git clone https://github.com/your-username/news-aggregator.git
+git clone https://github.com/yourusername/news-aggregator.git
 cd news-aggregator
 ```
 
-### 2. Configure Environment Variables
+2. **Connect to Cloudflare Pages**:
 
-Set environment variables in **Cloudflare Pages → Settings → Environment Variables**:
+- Go to [Cloudflare Pages](https://pages.cloudflare.com/)  
+- Click **Create a Project** → Connect your GitHub repo  
 
-* `NEWS_API_KEY` → Your [NewsAPI](https://newsapi.org/) key
-* `NEWS_API_URL` → `https://newsapi.org/v2/top-headlines`
-* `NEWS_SOURCES` → Comma-separated list of sources (optional)
-* `NEWS_LANGUAGE` → `en`
+3. **Configure Build Settings**:
 
-### 3. Deploy to Cloudflare Pages
+- **Framework**: None / Static Site  
+- **Build command**: leave empty (if no build step)  
+- **Build output directory**: `public`  
 
-Push the repository to GitHub and connect it to **Cloudflare Pages**:
+4. **Add Functions support**:
 
-```bash
-git add .
-git commit -m "Initial commit"
-git push origin main
-```
+- Set the **Functions directory** to `/functions` in Pages settings  
+- KV namespace binding: add `NEWS_CACHE` → bind to the KV namespace you created
 
-Then configure build settings:
+5. **Add Environment Variables** (see above)
 
-* **Framework preset**: None
-* **Build command**: None
-* **Output directory**: `/`
+6. **Deploy**:
 
-### 4. (Optional) Scheduled Refresh
+- Click **Save and Deploy** → Pages will build and serve the static frontend and Functions API  
 
-Enable **Scheduled Functions** in `wrangler.toml` to refresh news automatically:
+7. **Visit your site**:
 
-```toml
-[triggers]
-crons = ["0 * * * *"] # refresh every hour
-```
-
-### 5. Visit Your App 🎉
-
-After deployment, visit your Cloudflare Pages domain:
-
-```
-https://your-app.pages.dev
-```
+- Frontend will fetch news via `/api/news` automatically  
+- Infinite scroll and tag switching work out of the box  
 
 ---
 
-## 🚀 Roadmap / Future Enhancements
+## 💡 Notes
 
-* ✅ Infinite scroll loading
-* ✅ Search box for keyword filtering
-* ✅ Dark mode UI toggle
-* ✅ Save favorite articles locally (via LocalStorage)
+- 🛡 **KV caching** prevents hitting NewsAPI request limits. Frontend always fetches from KV via Functions.  
+- 🖼 **Image loading**: broken images automatically show placeholder  
+- 🎨 **Styling**: Customize `style.css` for card layout and night mode colors  
+- 🔄 **Refreshing news**: Use the "Refresh" button on the page to manually refresh cached news  
 
 ---
 
-## 📜 License
+## 🖼 Example Tags and Icons
 
-This project is licensed under the **MIT License**.
+| Tag           | Icon |
+|---------------|------|
+| Top           | 🏆    |
+| Technology    | 💻    |
+| Business      | 💼    |
+| Entertainment | 🎬    |
+| Science       | 🔬    |
+| Health        | 🩺    |
+
+> You can also integrate [Font Awesome](https://fontawesome.com/) icons in `index.html` if you want more visual flair.
+
+---
+
+## 🎉 Screenshots (Optional)
+
+_Add screenshots of your deployed site here to showcase the UI._
+
