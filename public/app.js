@@ -54,16 +54,18 @@ async function fetchNews(tag=currentTag, page=currentPage) {
       const inner = document.createElement("div");
       inner.className="news-card-inner";
 
-     inner.innerHTML = `
-      <div class="news-card-front">
-        <div class="card-content">
-          <h3>${articles.title}</h3>
-          <p>${articles.description || 'No description available.'}</p>
-          <span class="source">${articles.source || 'Unknown'}</span>
+      inner.innerHTML = `
+        <div class="news-card-front">
+          <div class="card-content">
+            <h3>${articles.title}</h3>
+            <p>${articles.description || 'No description available.'}</p>
+            <span class="source">${articles.source || 'Unknown'}</span>
+          </div>
         </div>
-      </div>
-    `;
-
+      `;
+      card.appendChild(inner);
+      container.appendChild(card);
+    });
     loading = false;
   } catch(err) {
     if(page===1) container.innerHTML=`<p>Error fetching news: ${err.message}</p>`;
