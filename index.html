@@ -7,14 +7,21 @@
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
   <div class="controls">
     <button onclick="selectTag('top')">Top</button>
     <button onclick="selectTag('technology')">Technology</button>
     <button onclick="selectTag('business')">Business</button>
+    <button onclick="selectTag('entertainment')">Entertainment</button>
+    <button onclick="selectTag('science')">Science</button>
+    <button onclick="selectTag('health')">Health</button>
     <button id="refresh-btn">Refresh</button>
   </div>
-  <div id="news-container" class="news-grid"></div>
+
+  <div id="news-container" class="news-grid">
+    <!-- 新闻卡片渲染在这里 -->
+  </div>
+
   <script src="/app.js"></script>
 </body>
 </html>
-
