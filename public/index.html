@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +6,7 @@
 <title>News Aggregator</title>
 <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-
+<body class="light">
   <div class="controls">
     <button onclick="selectTag('top')">Top</button>
     <button onclick="selectTag('technology')">Technology</button>
@@ -17,12 +15,10 @@
     <button onclick="selectTag('science')">Science</button>
     <button onclick="selectTag('health')">Health</button>
     <button id="refresh-btn">Refresh</button>
+    <button id="toggle-theme">Night / Day</button>
   </div>
 
-  <div id="news-container" class="news-grid">
-    <!-- 新闻卡片渲染在这里 -->
-  </div>
-
+  <div id="news-container" class="news-grid"></div>
   <script src="/app.js"></script>
 </body>
 </html>
