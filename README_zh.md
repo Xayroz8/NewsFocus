@@ -43,10 +43,7 @@ wrangler.toml     # Cloudflare Pages + Functions 配置文件
 | 变量名           | 说明                                      |
 |------------------|-----------------------------------------|
 | NEWSAPI_KEY       | 你的 NewsAPI API Key                     |
-| NEWS_SOURCES      | 新闻源列表（逗号分隔，例如 `bbc-news,cnn`） |
 | NEWS_LANGUAGE     | 语言代码，例如 `en` 或 `zh`             |
-| NEWS_CACHE        | KV 命名空间名称，用于缓存                 |
-| MIN_IMAGE_WIDTH   | 可选，最小图片宽度                        |
 
 > ⚠️ 不要在前端硬编码 API Key，请通过 Functions 代理保护。  
 
@@ -74,7 +71,7 @@ cd news-aggregator
 
 4. **添加 Functions 支持**：
 
-- KV 绑定：添加 `NEWS_CACHE` → 绑定到已创建的 KV 命名空间
+- KV 绑定：添加kv变量名为 `NEWS_CACHE` → 绑定到已创建的 KV 命名空间（名称随意，例如newsfocus）
 
 5. **配置环境变量**（参考上表）
 
