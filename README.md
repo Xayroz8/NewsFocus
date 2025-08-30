@@ -1,5 +1,8 @@
 # 📰 News Aggregator – Cloudflare Pages
 
+#### 🌐 [English Version](README.md) | [中文版](README_zh.md)
+
+
 A simple, fast, and visually appealing **news aggregator** built with **Cloudflare Pages**.  
 Fetches news from [NewsAPI](https://newsapi.org/) and displays them in a **masonry-style card layout**, supporting **tag filtering**, **infinite scroll**, and **night mode**.
 
@@ -114,4 +117,5 @@ cd news-aggregator
 ## 🎉 Screenshots (Optional)
 
 _Add screenshots of your deployed site here to showcase the UI._
+
 
