@@ -4,9 +4,8 @@ export async function onRequest(context) {
   const url = new URL(request.url);
 
   const page = url.searchParams.get("page") || 1;
-  const category = url.searchParams.get("category") || "general";
   const sources = env.NEWS_SOURCES || ""; // 过滤的新闻源
-  const apiKey = env.NEWSAPI_KEY || "2d9f228dcc4f4c1d8850b69f2c3c0fbd"; 
+  const apiKey = env.NEWSAPI_KEY || env.NEWS_API_KEY; 
 
   const upstreamUrl = `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&page=${page}&sources=${sources}`;
 
@@ -100,6 +99,7 @@ function simplifyArticle(a, minW) {
     publishedAt: a?.publishedAt || '',
   };
 }
+
 
 
 
